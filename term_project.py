@@ -1,4 +1,5 @@
 import os
+import re
 from tkinter import *
 from tkinter.ttk import *
 from tkinter.scrolledtext import ScrolledText
@@ -26,8 +27,8 @@ def search_file(root_path, lst_idx):
         files = os.listdir(root_path)
         for file in files:
             path = os.path.join(root_path, file)
-            print(path)
-            found_result_lstBox.insert(lst_idx, path)
+            if re.search(found_extension.get(), path):
+                found_result_lstBox.insert(lst_idx, path)
             if os.path.isdir(path):
                 search_file(path, lst_idx + 1)
             else:
@@ -61,7 +62,7 @@ pptx_radioButton.pack()
 # 탐색할 파일 입력 창
 
 file_find_frame = Frame()
-file_find_frame.pack(side=LEFT)
+file_find_frame.pack(side=TOP)
 input_path = Entry(file_find_frame, width=50)
 input_path.pack(side=LEFT)
 find_button = Button(file_find_frame, text="찾기", command=set_path)
@@ -69,7 +70,7 @@ find_button.pack(side=RIGHT)
 
 # 탐색 결과 리스트
 found_result_lstBox = Listbox(selectmode='single', width=100)
-found_result_lstBox.pack(side=BOTTOM)
+found_result_lstBox.pack()
 found_result_lstBox.configure(background="skyblue", foreground="white", font='Aerial')
 
 # 파일 삭제 기능
