@@ -5,6 +5,9 @@ from tkinter.ttk import *
 from tkinter.scrolledtext import ScrolledText
 import tkinter.messagebox as messagebox
 
+path_list = []
+cnt = 0
+
 
 def quit_window(event=None):
     windows.quit()
@@ -14,10 +17,18 @@ def set_path():
     search_file(input_path.get(), 0)
 
 
+def remove_file():
+    remove_file_path = path_list[found_result_lstBox.curselection()[0]]
+    if os.path.exists(remove_file_path):
+        os.remove(remove_file_path)
+    found_result_lstBox.delete(found_result_lstBox.curselection()[0], found_result_lstBox.curselection()[0])
+    found_result_lstBox.update()
+
+
 def search_file(root_path, lst_idx):
     if lst_idx == 0:
+        path_list.clear()
         found_result_lstBox.delete(0, END)
-
     # 확장자 선택 안했을때 예외처리
     if found_extension.get() == '':
         messagebox.showerror("에러", "탐색 확장자를 설정해 주시오.")
@@ -28,7 +39,8 @@ def search_file(root_path, lst_idx):
         for file in files:
             path = os.path.join(root_path, file)
             if re.search(found_extension.get(), path):
-                found_result_lstBox.insert(lst_idx, path)
+                found_result_lstBox.insert(lst_idx, os.path.basename(path))
+                path_list.append(path)
             if os.path.isdir(path):
                 search_file(path, lst_idx + 1)
             else:
@@ -52,11 +64,11 @@ txt_radioButton = Radiobutton(file_extension_frame, text="txt", value=".txt",
                               variable=found_extension)
 jpg_radioButton = Radiobutton(file_extension_frame, text="jpg", value=".jpg",
                               variable=found_extension)
-pptx_radioButton = Radiobutton(file_extension_frame, text="pptx", value=".pptx",
-                               variable=found_extension)
+png_radioButton = Radiobutton(file_extension_frame, text="png", value=".png",
+                              variable=found_extension)
 txt_radioButton.pack()
 jpg_radioButton.pack()
-pptx_radioButton.pack()
+png_radioButton.pack()
 # -------------------------------------------
 
 # 탐색할 파일 입력 창
@@ -74,6 +86,12 @@ found_result_lstBox.pack()
 found_result_lstBox.configure(background="skyblue", foreground="white", font='Aerial')
 
 # 파일 삭제 기능
+manipulate_btn_frame = LabelFrame(text="파일 작업")
+delete_btn = Button(text="삭제", command=remove_file)
+delete_btn.pack(side=LEFT)
+
+#파일 미리보기 기능
+
 
 # 프로그램 종료 키워드
 windows.bind("<Escape>", quit_window)
