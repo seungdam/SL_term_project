@@ -1,9 +1,9 @@
 import os
 import re
+import tkinter
 
 from tkinter import *
 from tkinter.ttk import *
-from tkinter.scrolledtext import ScrolledText
 
 import PIL.Image
 from PIL import ImageTk, Image
@@ -11,6 +11,9 @@ import tkinter.messagebox as messagebox
 
 path_list = []
 cnt = 0
+
+prev_width = 160
+prev_height = 160
 
 
 def quit_window(event=None):
@@ -43,16 +46,16 @@ def set_preview():
     if os.path.exists(preview_file_path):
         if re.search(".png", preview_file_path):
             print(preview_file_path)
-            prev_img = Image.open(preview_file_path)
-            resized_img = prev_img.resize((160, 160))
+            previous_img = Image.open(preview_file_path)
+            resized_img = previous_img.resize((prev_width, prev_height))
             photo = ImageTk.PhotoImage(resized_img)
             preview_label.configure(image=photo)
             preview_label.image = photo
         elif re.search(".txt", preview_file_path):
-            prev_img = ImageTk.PhotoImage(Image.open(r"C:\Users\OH.S.D\Desktop\preview.png").resize((160, 160)))
-            preview_label.configure(image=prev_img)
-            preview_label.image = prev_img
+            previous_img = ImageTk.PhotoImage(Image.open(r"preview.png").resize((160, 160)))
             txt_read = open(preview_file_path, 'r')
+            preview_label.image = previous_img
+            preview_label.configure(image=previous_img, width=prev_width, height=prev_height)
             messagebox.showinfo("텍스트 파일 내용", txt_read.read())
             txt_read.close()
 
@@ -89,12 +92,12 @@ def search_file(root_path, lst_idx):
 
 windows = Tk()
 windows.title("File_Manager")
-
+windows.resizable(False, False)
 # ---------------- 파일 검색 용 ------------
 # 파일 확장자 설정
 # 파일 확장자 선택을 위한 라디오 버튼
 file_extension_frame = LabelFrame(text="Extension")
-file_extension_frame.pack(side=RIGHT, fill=BOTH)
+file_extension_frame.pack(side=RIGHT)
 
 found_extension = StringVar()
 txt_radioButton = Radiobutton(file_extension_frame, text="txt", value=".txt",
@@ -117,18 +120,16 @@ find_button.pack(side=RIGHT)
 
 # 탐색 결과 리스트 위젯
 result_frame = Frame()
-
 found_result_lstBox = Listbox(selectmode='single', width=40)
 found_result_lstBox.configure(background="skyblue", foreground="white", font='Aerial')
 found_result_lstBox.pack(side=LEFT, fill=BOTH)
-
 # 미리보기 위젯
-img = ImageTk.PhotoImage(Image.open(r"C:\Users\OH.S.D\Desktop\preview.png").resize((160, 160)))
-preview_label = Label(result_frame, image=img)
-preview_label.configure(background="WHITE")
+prev_img = ImageTk.PhotoImage(Image.open(r"preview.png").resize((prev_width, prev_height)))
+preview_label = tkinter.Label(result_frame, image=prev_img, width=prev_width, height=prev_height)
+preview_label.configure(background="WHITE", relief=SOLID)
 preview_label.pack(side=RIGHT, fill=BOTH)
-result_frame.pack()
 
+result_frame.pack()
 # 파일 삭제, 미리보기 버튼 기능
 manipulate_btn_frame = LabelFrame(text="파일 작업")
 delete_btn = Button(manipulate_btn_frame, text="삭제", command=remove_file)
@@ -136,7 +137,6 @@ delete_btn.pack(side=LEFT)
 preview_btn = Button(manipulate_btn_frame, text="미리보기", command=set_preview)
 preview_btn.pack(side=RIGHT)
 manipulate_btn_frame.pack()
-
 
 # 프로그램 종료 키워드
 windows.bind("<Escape>", quit_window)
